@@ -7,17 +7,22 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import com.example.pbotugasbesar.koneksi.koneksi;
+
+import java.sql.Connection;
 
 public class Main extends Application {
 
-    private Admin admin = new Admin();
-    private Student student = new Student(admin);
+    private final Admin admin = new Admin();
+    private final Student student = new Student(admin);
     private VBox mainMenu;
     private Scene mainScene;
     private StackPane stackPane;
 
     public static void main(String[] args) {
+
         launch(args);
+
     }
 
 
