@@ -11,7 +11,7 @@ public class koneksi {
     private static Connection connection = null;
 
     // Method untuk mendapatkan koneksi
-    public static Connection getConnection() {
+    public static Connection getkoneksi() throws SQLException{
         if (connection == null) {
             try {
                 connection = DriverManager.getConnection(URL, USER, PASSWORD);

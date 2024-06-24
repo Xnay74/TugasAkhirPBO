@@ -1,6 +1,7 @@
-package com.example.pbotugasbesar;
+package com.example.pbotugasbesar.data;
 
-import javafx.application.Application;
+import com.example.pbotugasbesar.Main;
+import com.example.pbotugasbesar.StudentData;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -9,10 +10,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-
+import java.sql.*;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
+import com.example.pbotugasbesar.koneksi.koneksi;
 
 public class Admin  {
 
@@ -20,6 +22,8 @@ public class Admin  {
     private List<Book> books = new ArrayList<>();
     private VBox adminMenu;
     private int bookIdCounter = 1;
+    private Connection con;
+
 
     public void displayAdminLogin(StackPane stackPane) {
         GridPane grid = createFormPane();
@@ -153,33 +157,50 @@ public class Admin  {
         TextField titleField = new TextField();
         GridPane.setConstraints(titleField, 1, 0);
 
-        Label genreLabel = new Label("Genre:");
-        GridPane.setConstraints(genreLabel, 0, 1);
-        ComboBox<String> genreBox = new ComboBox<>();
-        genreBox.getItems().addAll("Story", "History", "Text", "Encyclopedia", "Biography", "Fiction");
-        GridPane.setConstraints(genreBox, 1, 1);
+
 
         Label authorLabel = new Label("Author:");
         GridPane.setConstraints(authorLabel, 0, 2);
         TextField authorField = new TextField();
         GridPane.setConstraints(authorField, 1, 2);
 
+        Label publisherLabel = new Label("Publisher:");
+        GridPane.setConstraints(publisherLabel, 0, 2);
+        TextField publisherField = new TextField();
+        GridPane.setConstraints(publisherField, 1, 2);
+
         Label yearLabel = new Label("Year:");
         GridPane.setConstraints(yearLabel, 0, 3);
         TextField yearField = new TextField();
         GridPane.setConstraints(yearField, 1, 3);
 
+        Label genreLabel = new Label("Genre:");
+        GridPane.setConstraints(genreLabel, 0, 1);
+        TextField genreField = new TextField();
+        GridPane.setConstraints(genreField, 1, 0);
+
+        Label quantityLabel = new Label("Year:");
+        GridPane.setConstraints(quantityLabel, 0, 3);
+        TextField quantityField = new TextField();
+        GridPane.setConstraints(quantityField, 1, 3);
+
         Button addBtn = new Button("Add");
         GridPane.setConstraints(addBtn, 1, 4);
         addBtn.setOnAction(e -> {
+            String judul = titleField.getText();
+            String pengarang = authorField.getText();
+            String penerbit = publisherField.getText();
+            int tahun_terbit = Integer.parseInt(yearField.getText());
+            String kategori = genreField.getText();
+            int jumlah = Integer.parseInt(quantityField.getText());
             try {
-                int year = Integer.parseInt(yearField.getText());
-                books.add(new Book(bookIdCounter++, titleField.getText(), genreBox.getValue(), authorField.getText(), year));
-                showAlert(Alert.AlertType.INFORMATION, "Success", "Book added successfully.");
-                stackPane.getChildren().clear();
-                displayAdminMenu(stackPane);
-            } catch (NumberFormatException ex) {
-                showAlert(Alert.AlertType.ERROR, "Invalid Year", "Year should be a number.");
+                Admin.addBook(judul, pengarang, penerbit,tahun_terbit,kategori, jumlah);
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Book added successfully!");
+                alert.show();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to add book.");
+                alert.show();
             }
         });
 
@@ -190,7 +211,7 @@ public class Admin  {
             displayAdminMenu(stackPane);
         });
 
-        grid.getChildren().addAll(titleLabel, titleField, genreLabel, genreBox, authorLabel, authorField, yearLabel, yearField, addBtn, backBtn);
+        grid.getChildren().addAll(titleLabel, titleField, genreLabel, genreField, authorLabel, authorField, yearLabel, yearField, addBtn, backBtn);
         stackPane.getChildren().add(grid);
     }
 
@@ -276,11 +297,83 @@ public class Admin  {
         alert.showAndWait();
     }
 
-    public List<Book> getBooks() {
-        return books;
+
+    public static ResultSet getBooksdatabase() throws SQLException {
+        String sql = "SELECT * FROM tb_buku";
+        Connection conn = koneksi.getkoneksi();
+        Statement stmt = conn.createStatement();
+        return stmt.executeQuery(sql);
+    }
+    public static void addBook(String judul, String pengarang, String penerbit, int tahun_terbit,String kategori, int jumlah) throws SQLException {
+        String sql = "INSERT INTO tb_buku (judul, pengarang, penerbit, tahun_terbit,kategori, jumlah) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = koneksi.getkoneksi(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, judul);
+            stmt.setString(2, pengarang);
+            stmt.setString(3, penerbit);
+            stmt.setInt(4, tahun_terbit);
+            stmt.setString(5, kategori);
+            stmt.setInt(6, jumlah);
+            stmt.executeUpdate();
+        }
+    }
+    public static void updateBook(int id_buku, String judul, String pengarang, String penerbit, int tahun_terbit,String kategori, int jumlah) throws SQLException {
+        String sql = "UPDATE tb_buku SET judul = ?, pengarang = ?, penerbit = ?, tahun_terbit = ?,kategori = ?, jumlah = ? WHERE id_buku = ?";
+        try (Connection conn = koneksi.getkoneksi(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, judul);
+            stmt.setString(2, pengarang);
+            stmt.setString(3, penerbit);
+            stmt.setInt(4, tahun_terbit);
+            stmt.setString(5, kategori);
+            stmt.setInt(6, jumlah);
+            stmt.setInt(7, id_buku);
+            stmt.executeUpdate();
+        }
+    }
+    public static void deleteBook(int id_buku) throws SQLException {
+        String sql = "DELETE FROM tb_buku WHERE id_buku = ?";
+        try (Connection conn = koneksi.getkoneksi(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id_buku);
+            stmt.executeUpdate();
+        }
+    }
+    public static ResultSet getStudentsdatabase() throws SQLException {
+        String sql = "SELECT * FROM tb_mahasiswa";
+        Connection conn = koneksi.getkoneksi();
+        Statement stmt = conn.createStatement();
+        return stmt.executeQuery(sql);
     }
 
-    public List<StudentData> getStudents() {
-        return students;
+    public static void addStudent(String nama, String nim, String fakultas, String jurusan, String telepon, String email) throws SQLException {
+        String sql = "INSERT INTO tb_mahasiswa (nama, nim, fakultas, jurusan, telepon, email) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = koneksi.getkoneksi(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, nama);
+            stmt.setString(2, nim);
+            stmt.setString(3, fakultas);
+            stmt.setString(4, jurusan);
+            stmt.setString(5, telepon);
+            stmt.setString(6, email);
+            stmt.executeUpdate();
+        }
     }
+    public static void updateStudent(int id_mahasiswa, String nama, String nim, String fakultas, String jurusan, String telepon, String email) throws SQLException {
+        String sql = "UPDATE tb_buku SET nama = ?, nim = ?, fakultas = ?, jurusan = ?, telepon = ?, email = ? WHERE id_mahasiswa = ?";
+        try (Connection conn = koneksi.getkoneksi(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, nama);
+            stmt.setString(2, nim);
+            stmt.setString(3, fakultas);
+            stmt.setString(4, jurusan);
+            stmt.setString(5, telepon);
+            stmt.setString(6, email);
+            stmt.setInt(7, id_mahasiswa);
+            stmt.executeUpdate();
+        }
+    }
+    public static void deleteStudent(int id_mahasiswa) throws SQLException {
+        String sql = "DELETE FROM tb_mahasiswa WHERE id_mahasiswa = ?";
+        try (Connection conn = koneksi.getkoneksi(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id_mahasiswa);
+            stmt.executeUpdate();
+        }
+    }
+
 }

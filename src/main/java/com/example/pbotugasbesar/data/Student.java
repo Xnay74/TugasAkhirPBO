@@ -1,6 +1,7 @@
-package com.example.pbotugasbesar;
+package com.example.pbotugasbesar.data;
 
-import javafx.application.Application;
+import com.example.pbotugasbesar.Main;
+import com.example.pbotugasbesar.StudentData;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -9,7 +10,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +38,7 @@ public class Student  {
         loginBtn.setOnAction(e -> {
             String nim = nimField.getText();
             if (nim.matches("\\d{15}")) {
-                loggedInStudent = admin.getStudents().stream().filter(s -> s.getNim().equals(nim)).findFirst().orElse(null);
+                loggedInStudent = admin.getStudents().stream().filter(s -> s.nimProperty().equals(nim)).findFirst().orElse(null);
                 if (loggedInStudent != null) {
                     stackPane.getChildren().clear();
                     displayStudentMenu(stackPane);
@@ -102,7 +102,7 @@ public class Student  {
 
     private void borrowBook(StackPane stackPane) {
         TableView<Book> table = new TableView<>();
-        table.setItems(FXCollections.observableArrayList(admin.getBooks()));
+        table.setItems(FXCollections.observableArrayList(admin.getBooksdatabase()));
 
         TableColumn<Book, Integer> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -125,7 +125,7 @@ public class Student  {
         borrowBtn.setOnAction(e -> {
             Book selectedBook = table.getSelectionModel().getSelectedItem();
             if (selectedBook != null) {
-                borrowedBooks.computeIfAbsent(loggedInStudent.getNim(), k -> FXCollections.observableArrayList()).add(selectedBook);
+                borrowedBooks.computeIfAbsent(loggedInStudent.nimProperty(), k -> FXCollections.observableArrayList()).add(selectedBook);
                 showAlert(Alert.AlertType.INFORMATION, "Success", "Book borrowed successfully.");
             } else {
                 showAlert(Alert.AlertType.ERROR, "No Selection", "Please select a book to borrow.");
@@ -146,7 +146,7 @@ public class Student  {
     }
 
     private void returnBook(StackPane stackPane) {
-        List<Book> books = borrowedBooks.get(loggedInStudent.getNim());
+        List<Book> books = borrowedBooks.get(loggedInStudent.nimProperty());
         if (books == null || books.isEmpty()) {
             showAlert(Alert.AlertType.INFORMATION, "No Books", "You have not borrowed any books.");
 
@@ -180,7 +180,7 @@ public class Student  {
             if (selectedBook != null) {
                 books.remove(selectedBook);
                 if (books.isEmpty()) {
-                    borrowedBooks.remove(loggedInStudent.getNim());
+                    borrowedBooks.remove(loggedInStudent.nimProperty());
                 }
                 showAlert(Alert.AlertType.INFORMATION, "Success", "Book returned successfully.");
                 table.setItems(FXCollections.observableArrayList(books));
@@ -203,7 +203,7 @@ public class Student  {
     }
 
     private void viewBorrowedBooks(StackPane stackPane) {
-        List<Book> books = borrowedBooks.get(loggedInStudent.getNim());
+        List<Book> books = borrowedBooks.get(loggedInStudent.nimProperty());
         if (books == null || books.isEmpty()) {
             showAlert(Alert.AlertType.INFORMATION, "No Books", "You have not borrowed any books.");
             return;

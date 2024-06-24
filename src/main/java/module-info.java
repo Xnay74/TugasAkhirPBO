@@ -6,4 +6,6 @@ module com.example.pbotugasbesar {
 
     opens com.example.pbotugasbesar to javafx.fxml;
     exports com.example.pbotugasbesar;
+    exports com.example.pbotugasbesar.data;
+    opens com.example.pbotugasbesar.data to javafx.fxml;
 }

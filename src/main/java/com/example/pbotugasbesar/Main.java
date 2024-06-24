@@ -1,5 +1,7 @@
 package com.example.pbotugasbesar;
 
+import com.example.pbotugasbesar.data.Admin;
+import com.example.pbotugasbesar.data.Student;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -7,9 +9,6 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import com.example.pbotugasbesar.koneksi.koneksi;
-
-import java.sql.Connection;
 
 public class Main extends Application {
 
