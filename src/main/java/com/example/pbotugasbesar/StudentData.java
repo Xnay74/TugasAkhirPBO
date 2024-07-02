@@ -1,47 +1,35 @@
 package com.example.pbotugasbesar;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.application.Application;
+import javafx.stage.Stage;
 
-public class StudentData {
+public class StudentData  {
 
-    private final StringProperty nama;
-    private final StringProperty nim;
-    private final StringProperty fakultas;
-    private final StringProperty jurusan;
-    private final StringProperty telepon;
-    private final StringProperty email;
+    private String name;
+    private String nim;
+    private String faculty;
+    private String department;
 
-    public StudentData(String nama, String nim, String fakultas, String jurusan, String telepon, String email) {
-        this.nama = new SimpleStringProperty(nama);
-        this.nim = new SimpleStringProperty(nim);
-        this.fakultas = new SimpleStringProperty(fakultas);
-        this.jurusan = new SimpleStringProperty(jurusan);
-        this.telepon = new SimpleStringProperty(telepon);
-        this.email = new SimpleStringProperty(email);
+    public StudentData(String name, String nim, String faculty, String department) {
+        this.name = name;
+        this.nim = nim;
+        this.faculty = faculty;
+        this.department = department;
     }
 
-    public StringProperty nameProperty() {
-        return nama;
+    public String getName() {
+        return name;
     }
 
-    public StringProperty nimProperty() {
+    public String getNim() {
         return nim;
     }
 
-    public StringProperty fakultasProperty() {
-        return fakultas;
+    public String getFaculty() {
+        return faculty;
     }
 
-    public StringProperty jurusanProperty() {
-        return jurusan;
-    }
-
-    public StringProperty teleponProperty() {
-        return telepon;
-    }
-
-    public StringProperty emailProperty() {
-        return email;
+    public String getDepartment() {
+        return department;
     }
 }

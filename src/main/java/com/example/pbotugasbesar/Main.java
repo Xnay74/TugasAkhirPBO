@@ -1,7 +1,5 @@
 package com.example.pbotugasbesar;
 
-import com.example.pbotugasbesar.data.Admin;
-import com.example.pbotugasbesar.data.Student;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -12,16 +10,14 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    private final Admin admin = new Admin();
-    private final Student student = new Student(admin);
+    private Admin admin = new Admin();
+    private Student student = new Student(admin);
     private VBox mainMenu;
     private Scene mainScene;
     private StackPane stackPane;
 
     public static void main(String[] args) {
-
         launch(args);
-
     }
 
 
