@@ -14,9 +14,9 @@ import java.util.List;
 
 public class Admin  {
 
-    private List<StudentData> students = new ArrayList<>();
-    private List<Book> books = new ArrayList<>();
-    private VBox adminMenu;
+    private static final List<StudentData> students = new ArrayList<>();
+    private final List<viewBorrowedBook> borrowedBooks = new ArrayList<>();
+    private static final List<Book> books = new ArrayList<>();
     private int bookIdCounter = 1;
 
     public void displayAdminLogin(StackPane stackPane) {
@@ -60,7 +60,7 @@ public class Admin  {
     }
 
     private void displayAdminMenu(StackPane stackPane) {
-        adminMenu = new VBox(10);
+        VBox adminMenu = new VBox(10);
         adminMenu.setStyle("-fx-padding: 20; -fx-alignment: center;");
 
         Button addStudentBtn = new Button("Add Student");
@@ -81,6 +81,9 @@ public class Admin  {
         Button displayBooksBtn = new Button("Display Books");
         displayBooksBtn.setOnAction(e -> displayBooks(stackPane));
 
+        Button displayBorrowedBooksBtn = new Button("Display Borrowed Books");
+        displayBorrowedBooksBtn.setOnAction(e -> displayBorrowedBooks(stackPane));
+
         Button logoutBtn = new Button("Back");
         logoutBtn.setOnAction(e -> {
             stackPane.getChildren().clear();
@@ -92,7 +95,7 @@ public class Admin  {
             }
         });
 
-        adminMenu.getChildren().addAll(addStudentBtn, addBookBtn, displayStudentsBtn, displayBooksBtn, logoutBtn);
+        adminMenu.getChildren().addAll(addStudentBtn, addBookBtn, displayStudentsBtn, displayBooksBtn,displayBorrowedBooksBtn, logoutBtn);
         stackPane.getChildren().add(adminMenu);
     }
 
@@ -267,6 +270,40 @@ public class Admin  {
         stackPane.getChildren().clear();
         stackPane.getChildren().add(vbox);
     }
+    private void displayBorrowedBooks(StackPane stackPane) {
+        TableView<viewBorrowedBook> table = new TableView<>();
+        table.setItems(FXCollections.observableList(borrowedBooks));
+
+        TableColumn<viewBorrowedBook, Integer> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+
+        TableColumn<viewBorrowedBook, String> titleColumn = new TableColumn<>("Title");
+        titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+
+        TableColumn<viewBorrowedBook, String> studentNameColumn = new TableColumn<>("Student Name");
+        studentNameColumn.setCellValueFactory(new PropertyValueFactory<>("studentName"));
+
+        TableColumn<viewBorrowedBook, String> borrowedDateColumn = new TableColumn<>("Borrowed Date");
+        borrowedDateColumn.setCellValueFactory(new PropertyValueFactory<>("borrowedDate"));
+
+        TableColumn<viewBorrowedBook, String> dueDateColumn = new TableColumn<>("Due Date");
+        dueDateColumn.setCellValueFactory(new PropertyValueFactory<>("dueDate"));
+
+        table.getColumns().addAll(idColumn, titleColumn, studentNameColumn, borrowedDateColumn, dueDateColumn);
+
+        Button backBtn = new Button("Back");
+        backBtn.setOnAction(e -> {
+            stackPane.getChildren().clear();
+            displayAdminMenu(stackPane);
+        });
+
+        VBox vbox = new VBox(10, table, backBtn);
+        vbox.setPadding(new Insets(20));
+        vbox.setAlignment(Pos.CENTER);
+        stackPane.getChildren().clear();
+        stackPane.getChildren().add(vbox);
+    }
+
 
     private GridPane createFormPane() {
         GridPane grid = new GridPane();
@@ -285,11 +322,11 @@ public class Admin  {
         alert.showAndWait();
     }
 
-    public List<Book> getBooks() {
+    public static List<Book> getBooks() {
         return books;
     }
 
-    public List<StudentData> getStudents() {
+    public static List<StudentData> getStudents() {
         return students;
     }
 }

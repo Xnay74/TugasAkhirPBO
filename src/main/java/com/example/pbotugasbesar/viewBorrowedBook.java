@@ -1,32 +1,29 @@
 package com.example.pbotugasbesar;
 
-import javafx.application.Application;
-import javafx.stage.Stage;
-
 import java.time.LocalDate;
 
-public class Book  {
-    private final int id;
-    private final String title;
-    private final String genre;
-    private final String author;
-    private final int year;
+public class viewBorrowedBook {
+    private int id;
+    private String title;
+    private String genre;
+    private String author;
+    private int year;
     private int stock;
     private LocalDate borrowDate;
     private int borrowDuration;
-    private boolean borrowed;
-    private LocalDate returnDate;
+    private String studentName; // Add student name
+    private String studentNim;
 
-    public Book(int id, String title, String genre, String author, int year, int stock) {
+    public viewBorrowedBook(int id, String title, String genre, String author, int year, int stock, String studentName, String studentNim) {
         this.id = id;
         this.title = title;
         this.genre = genre;
         this.author = author;
         this.year = year;
         this.stock = stock;
-        this.borrowed = false;
+        this.studentName = studentName;
+        this.studentNim = studentNim;
     }
-
     public int getId() {
         return id;
     }
@@ -42,6 +39,10 @@ public class Book  {
     public String getAuthor() {
         return author;
     }
+
+    public  String getStudentName(){return studentName;}
+
+    public  String getStudentNim(){return studentNim;}
 
     public int getYear() {
         return year;
@@ -70,21 +71,4 @@ public class Book  {
     public void setBorrowDuration(int borrowDuration) {
         this.borrowDuration = borrowDuration;
     }
-
-    public LocalDate getReturnDate() {
-        return returnDate;
-    }
-
-    public void setReturnDate(LocalDate returnDate) {
-        this.returnDate = returnDate;
-    }
-
-    public boolean isBorrowed() {
-        return borrowed;
-    }
-
-    public void setBorrowed(boolean borrowed) {
-        this.borrowed = borrowed;
-    }
 }
-

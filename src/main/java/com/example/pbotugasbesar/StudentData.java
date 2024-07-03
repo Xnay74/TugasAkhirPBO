@@ -2,10 +2,10 @@ package com.example.pbotugasbesar;
 
 public class StudentData  {
 
-    private String name;
-    private String nim;
-    private String faculty;
-    private String department;
+    private final String name;
+    private final String nim;
+    private final String faculty;
+    private final String department;
 
     public StudentData(String name, String nim, String faculty, String department) {
         this.name = name;

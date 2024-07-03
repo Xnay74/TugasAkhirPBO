@@ -7,17 +7,29 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import com.example.pbotugasbesar.*;
 
 public class Main extends Application {
 
     private Admin admin;
     private Student student;
     private VBox mainMenu;
-    private Scene mainScene;
     private StackPane stackPane;
 
     public static void main(String[] args) {
+        user();
         launch(args);
+    }
+
+    public static void user(){
+        StudentData student1 = new StudentData("Bimo","202310350311500","Teknik","Teknik Sipil");
+        StudentData student2 = new StudentData("G","202310390311123","FIKES","Keperawatan");
+        Admin.getStudents().add(student1);
+        Admin.getStudents().add(student2);
+        Book book1 = new Book(1,"Perang CR","History","SuperGuru",2020,3);
+        Book book2 = new Book(2,"Geyming","Text","Bubu",2016,3);
+        Admin.getBooks().add(book1);
+        Admin.getBooks().add(book2);
     }
 
     @Override
@@ -56,7 +68,7 @@ public class Main extends Application {
         stackPane = new StackPane();
         stackPane.getChildren().add(mainMenu);
 
-        mainScene = new Scene(stackPane, 600, 400);
+        Scene mainScene = new Scene(stackPane, 600, 400);
         primaryStage.setScene(mainScene);
         primaryStage.show();
 
@@ -67,4 +79,5 @@ public class Main extends Application {
         stackPane.getChildren().clear();
         stackPane.getChildren().add(mainMenu);
     }
+
 }
