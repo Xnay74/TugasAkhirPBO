@@ -167,34 +167,40 @@ public class Admin  {
         TextField yearField = new TextField();
         GridPane.setConstraints(yearField, 1, 3);
 
+        Label stockLabel = new Label("Stock:");
+        GridPane.setConstraints(stockLabel, 0, 4);
+        TextField stockField = new TextField();
+        GridPane.setConstraints(stockField, 1, 4);
+
         Button addBtn = new Button("Add");
-        GridPane.setConstraints(addBtn, 1, 4);
+        GridPane.setConstraints(addBtn, 1, 5);
         addBtn.setOnAction(e -> {
             try {
                 int year = Integer.parseInt(yearField.getText());
-                books.add(new Book(bookIdCounter++, titleField.getText(), genreBox.getValue(), authorField.getText(), year));
+                int stock = Integer.parseInt(stockField.getText());
+                books.add(new Book(bookIdCounter++, titleField.getText(), genreBox.getValue(), authorField.getText(), year, stock));
                 showAlert(Alert.AlertType.INFORMATION, "Success", "Book added successfully.");
                 stackPane.getChildren().clear();
                 displayAdminMenu(stackPane);
             } catch (NumberFormatException ex) {
-                showAlert(Alert.AlertType.ERROR, "Invalid Year", "Year should be a number.");
+                showAlert(Alert.AlertType.ERROR, "Invalid Input", "Year and Stock should be numeric.");
             }
         });
 
         Button backBtn = new Button("Back");
-        GridPane.setConstraints(backBtn, 0, 4);
+        GridPane.setConstraints(backBtn, 0, 5);
         backBtn.setOnAction(e -> {
             stackPane.getChildren().clear();
             displayAdminMenu(stackPane);
         });
 
-        grid.getChildren().addAll(titleLabel, titleField, genreLabel, genreBox, authorLabel, authorField, yearLabel, yearField, addBtn, backBtn);
+        grid.getChildren().addAll(titleLabel, titleField, genreLabel, genreBox, authorLabel, authorField, yearLabel, yearField, stockLabel, stockField, addBtn, backBtn);
         stackPane.getChildren().add(grid);
     }
 
     private void displayStudents(StackPane stackPane) {
         TableView<StudentData> table = new TableView<>();
-        table.setItems(FXCollections.observableArrayList(students));
+        table.setItems(FXCollections.observableList(students));
 
         TableColumn<StudentData, String> nameColumn = new TableColumn<>("Name");
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -202,10 +208,10 @@ public class Admin  {
         TableColumn<StudentData, String> nimColumn = new TableColumn<>("NIM");
         nimColumn.setCellValueFactory(new PropertyValueFactory<>("nim"));
 
-        TableColumn<StudentData, String> facultyColumn = new TableColumn<>("Faculty");
+        TableColumn<StudentData, String> facultyColumn = new TableColumn<>("faculty");
         facultyColumn.setCellValueFactory(new PropertyValueFactory<>("faculty"));
 
-        TableColumn<StudentData, String> departmentColumn = new TableColumn<>("Department");
+        TableColumn<StudentData, String> departmentColumn = new TableColumn<>("department");
         departmentColumn.setCellValueFactory(new PropertyValueFactory<>("department"));
 
         table.getColumns().addAll(nameColumn, nimColumn, facultyColumn, departmentColumn);
@@ -217,15 +223,16 @@ public class Admin  {
         });
 
         VBox vbox = new VBox(10, table, backBtn);
-        vbox.setAlignment(Pos.CENTER);
         vbox.setPadding(new Insets(20));
+        vbox.setAlignment(Pos.CENTER);
+
         stackPane.getChildren().clear();
         stackPane.getChildren().add(vbox);
     }
 
     private void displayBooks(StackPane stackPane) {
         TableView<Book> table = new TableView<>();
-        table.setItems(FXCollections.observableArrayList(books));
+        table.setItems(FXCollections.observableList(books));
 
         TableColumn<Book, Integer> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -242,7 +249,10 @@ public class Admin  {
         TableColumn<Book, Integer> yearColumn = new TableColumn<>("Year");
         yearColumn.setCellValueFactory(new PropertyValueFactory<>("year"));
 
-        table.getColumns().addAll(idColumn, titleColumn, genreColumn, authorColumn, yearColumn);
+        TableColumn<Book, Integer> stockColumn = new TableColumn<>("Stock");
+        stockColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));
+
+        table.getColumns().addAll(idColumn, titleColumn, genreColumn, authorColumn, yearColumn, stockColumn);
 
         Button backBtn = new Button("Back");
         backBtn.setOnAction(e -> {
@@ -251,8 +261,9 @@ public class Admin  {
         });
 
         VBox vbox = new VBox(10, table, backBtn);
-        vbox.setAlignment(Pos.CENTER);
         vbox.setPadding(new Insets(20));
+        vbox.setAlignment(Pos.CENTER);
+
         stackPane.getChildren().clear();
         stackPane.getChildren().add(vbox);
     }
@@ -260,9 +271,9 @@ public class Admin  {
     private GridPane createFormPane() {
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
+        grid.setPadding(new Insets(10));
         grid.setHgap(10);
         grid.setVgap(10);
-        grid.setPadding(new Insets(25, 25, 25, 25));
         return grid;
     }
 

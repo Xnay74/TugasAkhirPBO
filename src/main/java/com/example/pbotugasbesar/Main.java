@@ -10,8 +10,8 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    private Admin admin = new Admin();
-    private Student student = new Student(admin);
+    private Admin admin;
+    private Student student;
     private VBox mainMenu;
     private Scene mainScene;
     private StackPane stackPane;
@@ -20,10 +20,12 @@ public class Main extends Application {
         launch(args);
     }
 
-
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Library Management System");
+
+        admin = new Admin();
+        student = new Student(admin);
 
         Button studentLoginBtn = new Button("Login as Student");
         studentLoginBtn.setOnAction(e -> {

@@ -1,8 +1,5 @@
 package com.example.pbotugasbesar;
 
-import javafx.application.Application;
-import javafx.stage.Stage;
-
 public class StudentData  {
 
     private String name;

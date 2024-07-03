@@ -1,6 +1,7 @@
 package com.example.pbotugasbesar;
 
 
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -11,15 +12,16 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class Student  {
 
-    private Admin admin;
     private StudentData loggedInStudent;
     private Map<String, List<Book>> borrowedBooks = new HashMap<>();
+    private Admin admin;
+    private VBox studentMenu;
 
     public Student(Admin admin) {
         this.admin = admin;
@@ -36,18 +38,15 @@ public class Student  {
         Button loginBtn = new Button("Login");
         GridPane.setConstraints(loginBtn, 1, 1);
         loginBtn.setOnAction(e -> {
-            String nim = nimField.getText();
-            if (nim.matches("\\d{15}")) {
-                loggedInStudent = admin.getStudents().stream().filter(s -> s.getNim().equals(nim)).findFirst().orElse(null);
-                if (loggedInStudent != null) {
+            for (StudentData student : admin.getStudents()) {
+                if (student.getNim().equals(nimField.getText())) {
+                    loggedInStudent = student;
                     stackPane.getChildren().clear();
                     displayStudentMenu(stackPane);
-                } else {
-                    showAlert(Alert.AlertType.ERROR, "Login Failed", "Student not found.");
+                    return;
                 }
-            } else {
-                showAlert(Alert.AlertType.ERROR, "Invalid NIM", "NIM should be 15 digits.");
             }
+            showAlert(Alert.AlertType.ERROR, "Login Failed", "Student not found.");
         });
 
         Button backBtn = new Button("Back");
@@ -67,7 +66,7 @@ public class Student  {
     }
 
     private void displayStudentMenu(StackPane stackPane) {
-        VBox studentMenu = new VBox(10);
+        studentMenu = new VBox(10);
         studentMenu.setStyle("-fx-padding: 20; -fx-alignment: center;");
 
         Button borrowBookBtn = new Button("Borrow Book");
@@ -119,14 +118,36 @@ public class Student  {
         TableColumn<Book, Integer> yearColumn = new TableColumn<>("Year");
         yearColumn.setCellValueFactory(new PropertyValueFactory<>("year"));
 
-        table.getColumns().addAll(idColumn, titleColumn, genreColumn, authorColumn, yearColumn);
+        TableColumn<Book, Integer> stockColumn = new TableColumn<>("Stock");
+        stockColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));
+
+        table.getColumns().addAll(idColumn, titleColumn, genreColumn, authorColumn, yearColumn, stockColumn);
+
+        TextField daysField = new TextField();
+        daysField.setPromptText("Enter number of days (max 7)");
 
         Button borrowBtn = new Button("Borrow");
         borrowBtn.setOnAction(e -> {
             Book selectedBook = table.getSelectionModel().getSelectedItem();
             if (selectedBook != null) {
-                borrowedBooks.computeIfAbsent(loggedInStudent.getNim(), k -> FXCollections.observableArrayList()).add(selectedBook);
-                showAlert(Alert.AlertType.INFORMATION, "Success", "Book borrowed successfully.");
+                try {
+                    int days = Integer.parseInt(daysField.getText());
+                    if (days > 0 && days <= 7) {
+                        selectedBook.setStock(selectedBook.getStock() - 1);
+                        selectedBook.setBorrowDate(LocalDate.now());
+                        selectedBook.setBorrowDuration(days);
+
+                        // Use Map's computeIfAbsent to handle adding new entries
+                        borrowedBooks.computeIfAbsent(loggedInStudent.getNim(), k -> new ArrayList<>()).add(selectedBook);
+
+                        showAlert(Alert.AlertType.INFORMATION, "Success", "Book borrowed successfully.");
+                        table.refresh();
+                    } else {
+                        showAlert(Alert.AlertType.ERROR, "Invalid Input", "Please enter a valid number of days (1-7).");
+                    }
+                } catch (NumberFormatException ex) {
+                    showAlert(Alert.AlertType.ERROR, "Invalid Input", "Please enter a valid number of days.");
+                }
             } else {
                 showAlert(Alert.AlertType.ERROR, "No Selection", "Please select a book to borrow.");
             }
@@ -138,7 +159,7 @@ public class Student  {
             displayStudentMenu(stackPane);
         });
 
-        VBox vbox = new VBox(10, table, borrowBtn, backBtn);
+        VBox vbox = new VBox(10, table, daysField, borrowBtn, backBtn);
         vbox.setAlignment(Pos.CENTER);
         vbox.setPadding(new Insets(20));
         stackPane.getChildren().clear();
@@ -146,16 +167,16 @@ public class Student  {
     }
 
     private void returnBook(StackPane stackPane) {
-        List<Book> books = borrowedBooks.get(loggedInStudent.getNim());
-        if (books == null || books.isEmpty()) {
-            showAlert(Alert.AlertType.INFORMATION, "No Books", "You have not borrowed any books.");
-
+        List<Book> studentBooks = borrowedBooks.getOrDefault(loggedInStudent.getNim(), new ArrayList<>());
+        if (studentBooks.isEmpty()) {
+            showAlert(Alert.AlertType.INFORMATION, "No Books", "You have no borrowed books to return.");
+            stackPane.getChildren().clear();
             displayStudentMenu(stackPane);
             return;
         }
 
         TableView<Book> table = new TableView<>();
-        table.setItems(FXCollections.observableArrayList(books));
+        table.setItems(FXCollections.observableArrayList(studentBooks));
 
         TableColumn<Book, Integer> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -172,18 +193,19 @@ public class Student  {
         TableColumn<Book, Integer> yearColumn = new TableColumn<>("Year");
         yearColumn.setCellValueFactory(new PropertyValueFactory<>("year"));
 
-        table.getColumns().addAll(idColumn, titleColumn, genreColumn, authorColumn, yearColumn);
+        TableColumn<Book, Integer> stockColumn = new TableColumn<>("Stock");
+        stockColumn.setCellValueFactory(new PropertyValueFactory<>("stock"));
+
+        table.getColumns().addAll(idColumn, titleColumn, genreColumn, authorColumn, yearColumn, stockColumn);
 
         Button returnBtn = new Button("Return");
         returnBtn.setOnAction(e -> {
             Book selectedBook = table.getSelectionModel().getSelectedItem();
             if (selectedBook != null) {
-                books.remove(selectedBook);
-                if (books.isEmpty()) {
-                    borrowedBooks.remove(loggedInStudent.getNim());
-                }
+                selectedBook.setStock(selectedBook.getStock() + 1);
+                studentBooks.remove(selectedBook);
                 showAlert(Alert.AlertType.INFORMATION, "Success", "Book returned successfully.");
-                table.setItems(FXCollections.observableArrayList(books));
+                table.refresh();
             } else {
                 showAlert(Alert.AlertType.ERROR, "No Selection", "Please select a book to return.");
             }
@@ -203,14 +225,14 @@ public class Student  {
     }
 
     private void viewBorrowedBooks(StackPane stackPane) {
-        List<Book> books = borrowedBooks.get(loggedInStudent.getNim());
-        if (books == null || books.isEmpty()) {
+        List<Book> studentBooks = borrowedBooks.getOrDefault(loggedInStudent.getNim(), new ArrayList<>());
+        if (studentBooks.isEmpty()) {
             showAlert(Alert.AlertType.INFORMATION, "No Books", "You have not borrowed any books.");
             return;
         }
 
         TableView<Book> table = new TableView<>();
-        table.setItems(FXCollections.observableArrayList(books));
+        table.setItems(FXCollections.observableArrayList(studentBooks));
 
         TableColumn<Book, Integer> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -227,7 +249,13 @@ public class Student  {
         TableColumn<Book, Integer> yearColumn = new TableColumn<>("Year");
         yearColumn.setCellValueFactory(new PropertyValueFactory<>("year"));
 
-        table.getColumns().addAll(idColumn, titleColumn, genreColumn, authorColumn, yearColumn);
+        TableColumn<Book, LocalDate> borrowDateColumn = new TableColumn<>("Borrow Date");
+        borrowDateColumn.setCellValueFactory(new PropertyValueFactory<>("borrowDate"));
+
+        TableColumn<Book, Integer> borrowDurationColumn = new TableColumn<>("Borrow Duration (days)");
+        borrowDurationColumn.setCellValueFactory(new PropertyValueFactory<>("borrowDuration"));
+
+        table.getColumns().addAll(idColumn, titleColumn, genreColumn, authorColumn, yearColumn, borrowDateColumn, borrowDurationColumn);
 
         Button backBtn = new Button("Back");
         backBtn.setOnAction(e -> {
@@ -247,7 +275,7 @@ public class Student  {
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
         grid.setVgap(10);
-        grid.setPadding(new Insets(25, 25, 25, 25));
+        grid.setPadding(new Insets(20));
         return grid;
     }
 
@@ -259,4 +287,11 @@ public class Student  {
         alert.showAndWait();
     }
 
+    public StudentData getLoggedInStudent() {
+        return loggedInStudent;
+    }
+
+    public void setLoggedInStudent(StudentData loggedInStudent) {
+        this.loggedInStudent = loggedInStudent;
+    }
 }
